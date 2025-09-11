@@ -1,0 +1,86 @@
+# Crew United Job Scraper
+
+Automatically scrapes "No budget (actors*actresses and speakers)" jobs from Crew United and optionally sends automated application emails.
+
+## Setup
+
+1. **Create Virtual Environment**
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate  # On Unix/macOS
+```
+
+2. **Install Dependencies**
+```bash
+# Install required packages
+python3 -m pip install selenium webdriver-manager python-dotenv
+```
+
+3. **Environment Variables**
+Create a `.env` file in the project root:
+```bash
+ZOHO_EMAIL=your.email@zoho.com
+ZOHO_APP_PASSWORD=your_app_specific_password
+```
+
+## Usage
+
+1. **Activate Virtual Environment** (if not already activated)
+```bash
+source venv/bin/activate
+```
+
+2. **Run the Scraper**
+```bash
+python3 main.py
+```
+
+## Features
+
+- Visual scraping with Chrome browser
+- Filters for "No budget (actors*actresses and speakers)" jobs
+- Email capability with Zoho SMTP
+- Detailed logging of found jobs
+
+## Project Structure
+
+- `main.py` - Main script that orchestrates the scraping process
+- `job_scraper.py` - Contains the job scraping logic
+- `driver_manager.py` - Manages the Chrome WebDriver
+- `config.py` - Configuration settings
+
+## Common Issues & Solutions
+
+1. **Selenium/Chrome Issues**
+   - Make sure Chrome is installed
+   - The script uses ChromeDriver which is automatically managed
+
+2. **Email Setup**
+   - Zoho requires an App-Specific Password
+   - Generate one at: Zoho Mail → Settings → Security → App Passwords
+
+3. **Package Installation Issues**
+   - Always use the virtual environment
+   - If pip gives errors, try `python3 -m pip install --ignore-installed`
+
+## Deployment Options
+
+1. **Local Scheduled Task**
+   - Use cron (Unix/macOS) to run periodically
+   ```bash
+   # Example: Run every day at 9 AM
+   0 9 * * * cd /path/to/crew-united-scraper && source venv/bin/activate && python3 main.py
+   ```
+
+2. **Cloud Deployment**
+   - Consider using GitHub Actions for scheduled runs
+   - Or deploy to a small VPS/cloud instance
+
+## Maintenance
+
+- Keep Chrome and packages updated
+- Monitor for changes in Crew United's website structure
+- Regularly check your Zoho email settings
