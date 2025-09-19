@@ -7,11 +7,31 @@ from config import WAIT_TIMEOUT, VERBOSE
 import re
 import json
 from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
 
 class CrewUnitedJobScraper:
     
+    def _delete_existing_email_files(self):
+        """Delete all existing email_*.txt files"""
+        import glob
+        email_files = glob.glob('emails_*.txt')
+        for file in email_files:
+            try:
+                os.remove(file)
+                if VERBOSE:
+                    print(f"Deleted existing email file: {file}")
+            except Exception as e:
+                if VERBOSE:
+                    print(f"Error deleting file {file}: {str(e)}")
+    
     def __init__(self, driver):
         self.driver = driver
+        
+        # Delete existing email files
+        self._delete_existing_email_files()
         
         # Target categories - any budget for actors/speakers
         self.target_categories = [
@@ -78,11 +98,55 @@ class CrewUnitedJobScraper:
             print(f"\n🎉 Completed scraping {page} pages")
             print(f"📊 Total jobs found: {len(all_jobs)}")
         
-        # Save jobs to JSON file
+        # Save jobs to file
         self.save_jobs_to_json(all_jobs)
-        
         return all_jobs
         
+    def send_test_email(self):
+        """Send a test email to yourself using Zoho SMTP"""
+        try:
+            # Email settings
+            smtp_server = "smtp.zoho.eu"
+            port = 587
+            sender_email = os.getenv('ZOHO_EMAIL')
+            password = os.getenv('ZOHO_APP_PASSWORD')
+            
+            # Create message
+            msg = MIMEMultipart()
+            msg['From'] = sender_email
+            msg['To'] = sender_email  # Sending to yourself
+            msg['Subject'] = "Test Email - Indigenous actor in Germany"
+            
+            body = """Hi,
+
+Maybe I could be a good fit for your film.
+
+My reel and bio can be found at: www.wilfredocasas.com/acting
+
+Cheers,
+Wilfredo"""
+            
+            msg.attach(MIMEText(body, 'plain'))
+            
+            # Create SMTP session
+            server = smtplib.SMTP(smtp_server, port)
+            server.starttls()
+            server.login(sender_email, password)
+            
+            # Send email
+            text = msg.as_string()
+            server.sendmail(sender_email, sender_email, text)
+            server.quit()
+            
+            if VERBOSE:
+                print(f"✉️ Test email sent successfully to {sender_email}")
+            return True
+            
+        except Exception as e:
+            if VERBOSE:
+                print(f"❌ Error sending test email: {str(e)}")
+            return False
+    
     def save_jobs_to_json(self, jobs):
         """Save just emails to a text file, one per line"""
         if not jobs:

@@ -7,6 +7,14 @@ init-env:
 install:
 	python3 -m pip install -r requirements.txt
 
-# Run the scraper
-run:
-	python3 main.py
+# Scrape new jobs (deletes old email files first)
+scrape:
+	python3 job_scraper.py
+
+# Send emails from most recent file
+send:
+	python3 email_sender.py send $$(ls -t emails_*.txt | head -1)
+
+# Send test email to yourself
+test-email:
+	python3 email_sender.py test

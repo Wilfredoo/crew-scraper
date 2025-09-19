@@ -1,8 +1,20 @@
-# Crew United Job Scraper
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
 
-Automatically scrapes "No budget (actors*actresses and speakers)" jobs from Crew United and optionally sends automated application emails.
+# Environment variables
+.env
 
-## Setup
+# Email files
+emails_*.txt
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
 
 1. **Create Virtual Environment**
 ```bash
@@ -33,9 +45,16 @@ ZOHO_APP_PASSWORD=your_app_specific_password
 source venv/bin/activate
 ```
 
-2. **Run the Scraper**
+2. **Usage**
 ```bash
-python3 main.py
+# Scrape new jobs (will delete old email files first)
+make scrape
+
+# Send emails from most recent file
+make send
+
+# Send a test email to yourself
+make test-email
 ```
 
 ## Features
