@@ -5,14 +5,113 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from config import WAIT_TIMEOUT, VERBOSE
 import re
+import json
+from datetime import datetime
 
 class CrewUnitedJobScraper:
     
     def __init__(self, driver):
         self.driver = driver
         
-        # Target category - the exact one we want
-        self.target_category = "no budget (actors*actresses and speakers)"
+        # Target categories - any budget for actors/speakers
+        self.target_categories = [
+            "no budget (actors*actresses and speakers)",
+            "low budget (actors*actresses and speakers)",
+            "normal budget (actors*actresses and speakers)"
+        ]
+        
+    def paginate_and_scrape(self):
+        """Scrape all pages of job listings (up to page 5)"""
+        all_jobs = []
+        page = 1
+        has_next_page = True
+        MAX_PAGES = 5
+
+        while has_next_page and page <= MAX_PAGES:
+            if VERBOSE:
+                print(f"\n📖 Processing Page {page}")
+                print("=" * 30)
+
+            # Find jobs on current page
+            job_elements = self.find_target_job_elements()
+            
+            if job_elements:
+                for job_element in job_elements:
+                    job_data = self.extract_job_data(job_element)
+                    if job_data['raw_text']:
+                        all_jobs.append(job_data)
+                
+                if VERBOSE:
+                    print(f"📊 Found {len(job_elements)} jobs on page {page}")
+            
+            # Try to go to next page
+            try:
+                # Look for the next page button
+                next_page_button = self.driver.find_element(By.CSS_SELECTOR, 'a.btn.icon.icon-chevron-right')
+                
+                if next_page_button.is_enabled():
+                    if VERBOSE:
+                        print(f"⏭️  Moving to page {page + 1}...")
+                    next_page_button.click()
+                    page += 1
+                    
+                    # Wait for the new content to load
+                    if job_elements:  # Only if we found elements on this page
+                        WebDriverWait(self.driver, WAIT_TIMEOUT).until(
+                            EC.staleness_of(job_elements[0])
+                        )
+                    # Additional wait for new content
+                    WebDriverWait(self.driver, WAIT_TIMEOUT).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "span.cu-ui-common-breadcrumb-part"))
+                    )
+                else:
+                    if VERBOSE:
+                        print("🏁 Reached last page")
+                    has_next_page = False
+                    
+            except Exception as e:
+                if VERBOSE:
+                    print(f"🏁 No more pages available: {str(e)}")
+                has_next_page = False
+        
+        if VERBOSE:
+            print(f"\n🎉 Completed scraping {page} pages")
+            print(f"📊 Total jobs found: {len(all_jobs)}")
+        
+        # Save jobs to JSON file
+        self.save_jobs_to_json(all_jobs)
+        
+        return all_jobs
+        
+    def save_jobs_to_json(self, jobs):
+        """Save just emails to a text file, one per line"""
+        if not jobs:
+            return False
+            
+        # Create a timestamp for the filename
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'emails_{timestamp}.txt'
+        
+        # Extract only unique emails
+        emails = []
+        for job in jobs:
+            if job['email'] and job['email'] not in emails:
+                emails.append(job['email'])
+        
+        # Save emails, one per line
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                for email in emails:
+                    f.write(f"{email}\n")
+            
+            if VERBOSE:
+                print(f"\n💾 Saved {len(emails)} emails to {filename}")
+            return True
+            
+        except Exception as e:
+            if VERBOSE:
+                print(f"❌ Error saving emails: {str(e)}")
+            return False
     
     def find_target_job_elements(self):
         """Find ONLY job elements that have our target category"""
@@ -38,7 +137,7 @@ class CrewUnitedJobScraper:
                     if VERBOSE and breadcrumb_text:
                         print(f"   🔍 Checking breadcrumb: {breadcrumb_text[:50]}...")
                     
-                    if self.target_category in breadcrumb_text:
+                    if any(category.lower() in breadcrumb_text for category in self.target_categories):
                         # Find the parent job element (li element containing this breadcrumb)
                         job_element = breadcrumb.find_element(By.XPATH, "./ancestor::li[contains(@class, '') or not(@class)]")
                         target_job_elements.append(job_element)

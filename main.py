@@ -28,24 +28,16 @@ def main():
             close_driver(driver, 10)
             return False
         
-        # STEP 2: Detect and extract jobs
+        # STEP 2: Detect and extract jobs from all pages
         print("\n🕵️ STEP 2: Job Detection")
-        job_elements = scraper.find_target_job_elements()
+        all_jobs = scraper.paginate_and_scrape()
         
-        if not job_elements:
-            print("❌ No job elements found on page")
+        if not all_jobs:
+            print("❌ No job elements found")
             close_driver(driver, 30)
             return False
         
-        print(f"📊 Found {len(job_elements)} total job elements")
-        
-        all_jobs = []
-        for job_element in job_elements:
-            job_data = scraper.extract_job_data(job_element)
-            if job_data['raw_text']:  # Skip empty jobs
-                all_jobs.append(job_data)
-        
-        print(f"📋 Successfully extracted data from {len(all_jobs)} jobs")
+        print(f"\n🎭 FOUND {len(all_jobs)} 'NO BUDGET (ACTORS*ACTRESSES AND SPEAKERS)' JOBS")
 
         # Display the jobs
         has_jobs = scraper.display_target_jobs(all_jobs)
