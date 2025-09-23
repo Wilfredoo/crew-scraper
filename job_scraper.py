@@ -14,19 +14,6 @@ import os
 
 class CrewUnitedJobScraper:
     
-    def _delete_existing_email_files(self):
-        """Delete all existing email_*.txt files"""
-        import glob
-        email_files = glob.glob('emails_*.txt')
-        for file in email_files:
-            try:
-                os.remove(file)
-                if VERBOSE:
-                    print(f"Deleted existing email file: {file}")
-            except Exception as e:
-                if VERBOSE:
-                    print(f"Error deleting file {file}: {str(e)}")
-    
     def __init__(self, driver):
         self.driver = driver
         

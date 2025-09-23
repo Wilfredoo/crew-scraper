@@ -9,6 +9,7 @@ venv/
 
 # Email files
 emails_*.txt
+archived_scrapes/
 
 # VS Code
 .vscode/

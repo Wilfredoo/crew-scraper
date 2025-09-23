@@ -12,6 +12,10 @@ def main():
     print("Goal: Navigate to jobs page and detect job listings")
     print()
     
+    # Archive existing email files before starting new scrape
+    from utils import archive_email_files
+    archive_email_files()
+    
     driver = None
     
     try:

@@ -9,7 +9,7 @@ install:
 
 # Scrape new jobs (deletes old email files first)
 scrape:
-	python3 job_scraper.py
+	python3 main.py
 
 # Send emails from most recent file
 send:
