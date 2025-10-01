@@ -17,9 +17,6 @@ class CrewUnitedJobScraper:
     def __init__(self, driver):
         self.driver = driver
         
-        # Delete existing email files
-        self._delete_existing_email_files()
-        
         # Target categories - any budget for actors/speakers
         self.target_categories = [
             "no budget (actors*actresses and speakers)",

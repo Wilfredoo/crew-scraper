@@ -48,11 +48,11 @@ def main():
 
         if has_jobs:
             print(f"\n🎉 PHASE 2 COMPLETED SUCCESSFULLY!")
-            print(f"   📊 Total elements found: {len(job_elements)}")
+            print(f"   📊 Total jobs found: {len(all_jobs)}")
             print(f"   📋 Jobs with content: {len(all_jobs)}")
         else:
             print(f"\n❌ NO TARGET JOBS FOUND")
-            print(f"   📊 Total elements: {len(job_elements)}")
+            print(f"   📊 Total jobs found: {len(all_jobs)}")
             print(f"   📋 Jobs extracted: {len(all_jobs)}")
 
         close_driver(driver, KEEP_BROWSER_OPEN)
