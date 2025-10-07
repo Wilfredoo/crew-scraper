@@ -13,7 +13,11 @@ scrape:
 
 # Send emails from most recent file
 send:
-	python3 email_sender.py send $$(ls -t emails_*.txt | head -1)
+	@if ls emails_*.txt 1> /dev/null 2>&1; then \
+		python3 email_sender.py send $$(ls -t emails_*.txt | head -1); \
+	else \
+		echo "❌ No email files found. Run 'make scrape' first or check if new emails were found."; \
+	fi
 
 # Send test email to yourself
 test-email:

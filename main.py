@@ -1,5 +1,6 @@
 # main.py - Phase 2: Job Detection and Display
 
+import os
 from driver_manager import create_chrome_driver, close_driver
 from navigator import CrewUnitedNavigator
 from job_scraper import CrewUnitedJobScraper
@@ -50,6 +51,19 @@ def main():
             print(f"\n🎉 PHASE 2 COMPLETED SUCCESSFULLY!")
             print(f"   📊 Total jobs found: {len(all_jobs)}")
             print(f"   📋 Jobs with content: {len(all_jobs)}")
+            
+            # Check if any new email file was created
+            import glob
+            current_email_files = glob.glob('emails_*.txt')
+            if current_email_files:
+                # Sort by modification time to get the newest
+                current_email_files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
+                newest_file = current_email_files[0]
+                print(f"   📄 New emails saved to: {newest_file}")
+                print(f"\n🚀 Ready to send emails! Run: make send")
+            else:
+                print(f"   📄 No new email file created (no new unique emails found)")
+                print(f"\n😎 All emails were duplicates from previous scrape - nothing to send!")
         else:
             print(f"\n❌ NO TARGET JOBS FOUND")
             print(f"   📊 Total jobs found: {len(all_jobs)}")

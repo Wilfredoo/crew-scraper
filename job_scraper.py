@@ -1,4 +1,3 @@
-# job_scraper.py - Fixed: Only "No budget (actors*actresses and speakers)" jobs
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -132,28 +131,44 @@ Wilfredo"""
             return False
     
     def save_jobs_to_json(self, jobs):
-        """Save just emails to a text file, one per line"""
+        """Save only new emails to a text file, one per line"""
         if not jobs:
             return False
+        
+        # Import here to avoid circular imports
+        from utils import filter_new_emails
             
         # Create a timestamp for the filename
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f'emails_{timestamp}.txt'
         
-        # Extract only unique emails
-        emails = []
+        # Extract only unique emails from current scrape
+        current_emails = []
         for job in jobs:
-            if job['email'] and job['email'] not in emails:
-                emails.append(job['email'])
+            if job['email'] and job['email'] not in current_emails:
+                current_emails.append(job['email'])
         
-        # Save emails, one per line
+        if VERBOSE:
+            print(f"🔍 Found {len(current_emails)} unique emails in current scrape")
+        
+        # Filter out emails that were in the previous scrape
+        new_emails = filter_new_emails(current_emails)
+        
+        # Only save if there are new emails
+        if not new_emails:
+            print(f"✅ No new emails found - all {len(current_emails)} emails were in the previous scrape")
+            print(f"📄 No new email file created")
+            return True
+        
+        # Save new emails, one per line
         try:
             with open(filename, 'w', encoding='utf-8') as f:
-                for email in emails:
+                for email in new_emails:
                     f.write(f"{email}\n")
             
             if VERBOSE:
-                print(f"\n💾 Saved {len(emails)} emails to {filename}")
+                print(f"\n💾 Saved {len(new_emails)} NEW emails to {filename}")
+                print(f"   (Filtered out {len(current_emails) - len(new_emails)} duplicate emails)")
             return True
             
         except Exception as e:
