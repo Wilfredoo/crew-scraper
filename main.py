@@ -42,8 +42,6 @@ def main():
             close_driver(driver, 30)
             return False
         
-        print(f"\n🎭 FOUND {len(all_jobs)} 'NO BUDGET (ACTORS*ACTRESSES AND SPEAKERS)' JOBS")
-
         # Display the jobs
         has_jobs = scraper.display_target_jobs(all_jobs)
 

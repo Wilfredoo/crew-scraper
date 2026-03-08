@@ -10,14 +10,14 @@ def archive_email_files():
     if not os.path.exists(archive_dir):
         os.makedirs(archive_dir)
         
-    # Find all email files
-    email_files = glob.glob('emails_*.txt')
+    # Find all email files (crew-united, filmmakers, and combined)
+    email_files = glob.glob('emails_*.txt') + glob.glob('filmmakers_emails_*.txt') + glob.glob('combined_emails_*.txt')
     
     for file in email_files:
         try:
-            # Extract date from filename (format: emails_YYYYMMDD_HHMMSS.txt)
-            date_str = file.split('_')[1]  # Get YYYYMMDD part
-            date_obj = datetime.strptime(date_str, '%Y%m%d')
+            # Use file modified date so archiving works with any filename format
+            modified_timestamp = os.path.getmtime(file)
+            date_obj = datetime.fromtimestamp(modified_timestamp)
             readable_date = date_obj.strftime('%B %d, %Y')  # e.g., "September 23, 2025"
             
             # Create dated folder if it doesn't exist
@@ -36,7 +36,7 @@ def archive_email_files():
 def get_most_recent_email_file():
     """Find the most recent email file from current directory or archives"""
     # First, check if there are any current email files (shouldn't be any after archiving)
-    current_files = glob.glob('emails_*.txt')
+    current_files = glob.glob('emails_*.txt') + glob.glob('filmmakers_emails_*.txt') + glob.glob('combined_emails_*.txt')
     
     # Get all archived email files
     archived_files = []
@@ -45,7 +45,9 @@ def get_most_recent_email_file():
     if os.path.exists(archive_dir):
         for root, dirs, files in os.walk(archive_dir):
             for file in files:
-                if file.startswith('emails_') and file.endswith('.txt'):
+                if (file.startswith('emails_') or 
+                    file.startswith('filmmakers_emails_') or 
+                    file.startswith('combined_emails_')) and file.endswith('.txt'):
                     archived_files.append(os.path.join(root, file))
     
     # Combine all files

@@ -1,0 +1,4 @@
+name,email,phone,address,country,website,regions,specialties
+Test Agency 1,info@testagency1.com,+44 20 7160 6333,"123 Main St, London, UK",United Kingdom,https://testagency1.com,UK & Ireland,"Acting agency, Voice Agency"
+Test Agency 2,contact@testagency2.de,+49 30 403 01850,"Unter den Linden 1, Berlin, Germany",Germany,https://testagency2.de,D/A/CH,"Model agency, Young talent"
+Test Agency 3,hello@testagency3.fr,+33 1 42 97 48 80,"25 Rue de Rivoli, Paris, France",France,https://testagency3.fr,France,Artist management

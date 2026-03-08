@@ -28,7 +28,7 @@ class CrewUnitedJobScraper:
         all_jobs = []
         page = 1
         has_next_page = True
-        MAX_PAGES = 5
+        MAX_PAGES = 10
 
         while has_next_page and page <= MAX_PAGES:
             if VERBOSE:
@@ -131,15 +131,12 @@ Wilfredo"""
             return False
     
     def save_jobs_to_json(self, jobs):
-        """Save only new emails to a text file, one per line"""
+        """Save current scrape emails to a timestamped text file, one per line"""
         if not jobs:
             return False
-        
-        # Import here to avoid circular imports
-        from utils import filter_new_emails
             
         # Create a timestamp for the filename
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now().strftime('%B_%d_%Y_%I-%M-%S%p')
         filename = f'emails_{timestamp}.txt'
         
         # Extract only unique emails from current scrape
@@ -150,25 +147,22 @@ Wilfredo"""
         
         if VERBOSE:
             print(f"🔍 Found {len(current_emails)} unique emails in current scrape")
-        
-        # Filter out emails that were in the previous scrape
-        new_emails = filter_new_emails(current_emails)
-        
-        # Only save if there are new emails
-        if not new_emails:
-            print(f"✅ No new emails found - all {len(current_emails)} emails were in the previous scrape")
-            print(f"📄 No new email file created")
+
+        # Only save if there are emails in this scrape
+        if not current_emails:
+            print(f"✅ No emails found in this scrape")
+            print(f"📄 No email file created")
             return True
         
-        # Save new emails, one per line
+        # Save current scrape emails, one per line
         try:
             with open(filename, 'w', encoding='utf-8') as f:
-                for email in new_emails:
+                for email in current_emails:
                     f.write(f"{email}\n")
             
             if VERBOSE:
-                print(f"\n💾 Saved {len(new_emails)} NEW emails to {filename}")
-                print(f"   (Filtered out {len(current_emails) - len(new_emails)} duplicate emails)")
+                print(f"\n💾 Saved {len(current_emails)} emails to {filename}")
+                print("   (Includes all unique emails from this scrape)")
             return True
             
         except Exception as e:
@@ -292,13 +286,13 @@ Wilfredo"""
         return emails[0] if emails else None
     
     def display_target_jobs(self, target_jobs):
-        """Display the found target category jobs"""
+        """Display jobs in target '(no|low|normal) budget actors/speakers' categories"""
         
         if not target_jobs:
-            print("❌ NO 'NO BUDGET (ACTORS*ACTRESSES AND SPEAKERS)' JOBS FOUND")
+            print("❌ NO TARGET '(NO|LOW|NORMAL) BUDGET (ACTORS*ACTRESSES AND SPEAKERS)' JOBS FOUND")
             return False
         
-        print(f"🎭 FOUND {len(target_jobs)} 'NO BUDGET (ACTORS*ACTRESSES AND SPEAKERS)' JOBS")
+        print(f"🎭 FOUND {len(target_jobs)} TARGET '(NO|LOW|NORMAL) BUDGET (ACTORS*ACTRESSES AND SPEAKERS)' JOBS")
         print("=" * 80)
         
         for i, job_data in enumerate(target_jobs, 1):
@@ -316,11 +310,11 @@ Wilfredo"""
         return True
     
     def detect_target_jobs_on_page(self):
-        """Main function - only get 'No budget (actors*actresses and speakers)' jobs"""
+        """Main function - get target '(no|low|normal) budget actors/speakers' jobs"""
         
         if VERBOSE:
             print("\n" + "=" * 80)
-            print("🎭 FINDING 'NO BUDGET (ACTORS*ACTRESSES AND SPEAKERS)' JOBS ONLY")
+            print("🎭 FINDING TARGET '(NO|LOW|NORMAL) BUDGET (ACTORS*ACTRESSES AND SPEAKERS)' JOBS")
             print("=" * 80)
         
         try:
